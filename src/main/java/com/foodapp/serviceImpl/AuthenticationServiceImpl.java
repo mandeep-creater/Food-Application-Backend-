@@ -5,6 +5,7 @@ import com.foodapp.Response.UserRegistrationRequest;
 import com.foodapp.Response.UserRegistrationResponse;
 import com.foodapp.entity.Role;
 import com.foodapp.entity.User;
+import com.foodapp.exception.GlobalExceptionHandler;
 import com.foodapp.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +36,8 @@ public class AuthenticationServiceImpl {
 
         if (repository.findByEmail(request.getEmail()).isPresent()) {
             // Handle user already exists, e.g. throw an exception or return null or some error response
-            throw new RuntimeException("User already exists");
+            //throw new RuntimeException("User already exists");
+            GlobalExceptionHandler.throwUserExists(request.getEmail());
         }
 //        User user = new User();
 //        user.setEmail(request.getEmail());
@@ -65,7 +67,8 @@ final User savedUser =repository.save(user);
         );
 
         User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> GlobalExceptionHandler.notFound(User.class, request.getEmail()));
+
 
         String accessToken = jwtService.generateAccessToken(user);
 

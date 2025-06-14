@@ -49,9 +49,18 @@ public class AuthController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
+    @PostMapping("/register/restaurant")
+    public ResponseEntity<ApiResponse<UserRegistrationResponse>> registerRESTAURANT(@RequestBody UserRegistrationRequest request){
+
+        UserRegistrationResponse res = authService.register(request, Role.RESTAURANT);
+
+        ApiResponse<UserRegistrationResponse> result = new ApiResponse<>(HttpStatus.CREATED.value(), true,res);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
 
 
-//
+
+    //
 //    @PostMapping("/login")
 //    public ResponseEntity<AuthenticationResponse> login(@RequestBody User request) {
 //        return ResponseEntity.ok(authService.authenticate(request));

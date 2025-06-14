@@ -1,5 +1,6 @@
 package com.foodapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,6 +46,10 @@ public class User implements UserDetails {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    // One user can own many restaurants
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Restaurant> restaurants;
 
     public Long getId() {
         return id;
@@ -173,4 +179,9 @@ public class User implements UserDetails {
            public void preUpdate() {
                updatedAt = LocalDateTime.now();
             }
+
+
+    public List<Restaurant> getRestaurants() { return restaurants; }
+    public void setRestaurants(List<Restaurant> restaurants) { this.restaurants = restaurants; }
+
 }

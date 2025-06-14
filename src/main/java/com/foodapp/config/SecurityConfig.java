@@ -27,6 +27,11 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private  JwtAuthEntryPoint jwtAuthEntryPoint;
+
+
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,10 +39,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         //.requestMatchers("/login/**", "/register/**").permitAll()
-                        .requestMatchers( "/api/**").permitAll()
+                        .requestMatchers( "/api/auth/**", "/api/user/**","/api/restaurant/**").permitAll()
+                        //.requestMatchers("/api/restaurant/**").hasAuthority("RESTAURANT")
                         .requestMatchers("/admin_only/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
-                )
+                ).exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new JwtAuthEntryPoint() ))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
