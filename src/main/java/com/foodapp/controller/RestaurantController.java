@@ -18,6 +18,7 @@ public class RestaurantController {
 
     @Autowired
     private RestaurantService restaurantService;
+    private ApiResponse<List<RestaurantDTO>> result;
 
     @PreAuthorize("RESTAURANT")
     @PostMapping("/register")
@@ -46,5 +47,33 @@ public class RestaurantController {
         RestaurantDTO res =restaurantService.getRestaurantById(Id);
         ApiResponse<RestaurantDTO> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/search/byCity/{city}")
+    public ResponseEntity<ApiResponse<List<RestaurantDTO>>> getRestaurantByLocation(@PathVariable("city") String city){
+        List<RestaurantDTO> res = restaurantService.getRestaurantsByLocation(city);
+        ApiResponse<List<RestaurantDTO>> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping("/search/byName/{name}")
+    public  ResponseEntity<ApiResponse<List<RestaurantDTO>>> getRestaurantByName(@PathVariable("name") String name){
+         List<RestaurantDTO> res = restaurantService.getRestaurantByName(name);
+        ApiResponse<List<RestaurantDTO>> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteRestaurant(@PathVariable("id") Long id){
+        restaurantService.deleteRestaurant(id);
+        ApiResponse<String> result = new ApiResponse<>(HttpStatus.OK.value(), true, "Restaurant deleted successfully");
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/search/byOwnerEmail/{email}")
+    public ResponseEntity<ApiResponse<List<RestaurantDTO>>> getByOwnerByOwnerEmail(@PathVariable("email") String email){
+        List<RestaurantDTO> res = restaurantService.getByOwnerEmail(email);
+        ApiResponse<List<RestaurantDTO>> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
+        return ResponseEntity.ok(result);
     }
 }

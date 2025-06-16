@@ -2,6 +2,8 @@ package com.foodapp.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "restaurant")
 public class Restaurant {
@@ -14,7 +16,8 @@ public class Restaurant {
     @Column(name = "restaurant_name")
     private String restaurantName;
 
-    private String location;
+    @Column(name = "city")
+    private String city;
 
     private String image;
 
@@ -26,6 +29,10 @@ public class Restaurant {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+
+
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MenuItem> MenuItems;
 
     // Getters and Setters
 
@@ -41,8 +48,8 @@ public class Restaurant {
     public String getRestaurantName() { return restaurantName; }
     public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
@@ -66,15 +73,25 @@ public class Restaurant {
         this.address = address;
     }
 
-    public Restaurant(Long restaurantid, String restaurantName, String location, String image, String phone, String address, User owner) {
+
+    public List<MenuItem> getMenuItems() {
+        return MenuItems;
+    }
+
+    public void setMenuItems(List<MenuItem> menuItems) {
+        MenuItems = menuItems;
+    }
+
+    public Restaurant(Long restaurantid, String restaurantName, String city, String image, String phone, String address, User owner) {
         this.restaurantid = restaurantid;
         this.restaurantName = restaurantName;
-        this.location = location;
+        this.city = city;
         this.image = image;
       this.Phone = phone;
         this.address = address;
         this.owner = owner;
     }
+
 
     public Restaurant() {
     }

@@ -10,7 +10,7 @@ public class RestaurantMapper {
     public static Restaurant toEntity(RestaurantDTO restaurantDTO, User owner) {
         Restaurant restaurant = new Restaurant();
         restaurant.setRestaurantName(restaurantDTO.getRestaurantName());
-        restaurant.setLocation(restaurantDTO.getLocation());
+        restaurant.setCity(restaurantDTO.getCity());
         restaurant.setImage(restaurantDTO.getImage());
         restaurant.setPhone(restaurantDTO.getRestaurantConatctNumber());
         restaurant.setAddress(restaurantDTO.getAddress());
@@ -23,11 +23,11 @@ public class RestaurantMapper {
         restaurantDTO.setId(restaurant.getRestaurantid());
         restaurantDTO.setRestaurantName(restaurant.getRestaurantName());
         restaurantDTO.setAddress(restaurant.getAddress());
-        restaurantDTO.setLocation(restaurant.getLocation());
+        restaurantDTO.setCity(restaurant.getCity());
         restaurantDTO.setRestaurantConatctNumber(restaurant.getPhone());
         restaurantDTO.setImage(restaurant.getImage());
 
-        // ✅ Only set email from User object
+        //  Only set email from User object
         if (restaurant.getOwner() != null) {
            // restaurantDTO.setOwnerEmail(restaurant.getOwner().getEmail());
             restaurantDTO.setOwnerEmail(restaurant.getOwner().getEmail());
@@ -35,4 +35,5 @@ public class RestaurantMapper {
 
         return restaurantDTO;
     }
+
 }

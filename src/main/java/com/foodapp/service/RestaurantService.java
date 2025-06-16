@@ -1,6 +1,7 @@
 package com.foodapp.service;
 
 import com.foodapp.DTO.RestaurantDTO;
+import com.foodapp.entity.Restaurant;
 
 import java.util.List;
 
@@ -14,7 +15,10 @@ public interface RestaurantService {
 
     List<RestaurantDTO> getRestaurantsByLocation(String location);
 
-    RestaurantDTO getRestaurantByName(String name);
+    List<RestaurantDTO> getRestaurantByName(String name);
 
     void deleteRestaurant(Long id);
+
+
+    List<RestaurantDTO>getByOwnerEmail(String ownerEmail);
 }

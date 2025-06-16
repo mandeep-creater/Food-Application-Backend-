@@ -9,7 +9,9 @@ import com.foodapp.repo.RestaurantRepo;
 import com.foodapp.repo.UserRepository;
 import com.foodapp.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Autowired
     private UserRepository userRepo;
+
     @Override
     public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO,String OwnerEmail){
 
@@ -65,17 +68,56 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public List<RestaurantDTO> getRestaurantsByLocation(String location) {
-        return null;
+    public List<RestaurantDTO> getRestaurantsByLocation(String city) {
+
+        if(city == null || city.trim().isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City cannot be empty");
+        }
+
+        if (city.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "No restaurants found at : " + city
+            );
+        }
+        List<Restaurant> restaurant = restaurantRepo.findByCity(city);
+        return restaurant.stream().map(RestaurantMapper::toRestaurantDTO).collect(Collectors.toList());
+
     }
 
     @Override
-    public RestaurantDTO getRestaurantByName(String name) {
-        return null;
+    public List<RestaurantDTO> getRestaurantByName(String restaurantName) {
+        if(restaurantName == null || restaurantName.trim().isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Restaurant name cannot be empty");
+        }
+
+        List<Restaurant> restaurants = restaurantRepo.findByRestaurantNameContainingIgnoreCase(restaurantName.trim());
+
+        if (restaurants.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "No restaurants found containing: " + restaurantName
+            );
+        }
+
+        return restaurants.stream().map(RestaurantMapper::toRestaurantDTO).collect(Collectors.toList());
     }
 
     @Override
     public void deleteRestaurant(Long id) {
+            if(!restaurantRepo.existsById(id)){
+                throw GlobalExceptionHandler.restaurantNotFound(Restaurant.class,id);
+            }
+            restaurantRepo.deleteById(id);
+    }
 
+    @Override
+    public List<RestaurantDTO> getByOwnerEmail(String ownerEmail) {
+        User owner = userRepo.findByEmail(ownerEmail)
+               .orElseThrow(() -> GlobalExceptionHandler.notFound(User.class, ownerEmail));
+
+        List<Restaurant> restaurants = restaurantRepo.findByOwnerEmail(ownerEmail);
+
+        return restaurants.stream().map(RestaurantMapper::toRestaurantDTO).collect(Collectors.toList());
     }
 }

@@ -1,13 +1,11 @@
 package com.foodapp.DTO;
 
-import com.foodapp.entity.User;
-
 public class RestaurantDTO {
     private Long id;
     private String restaurantName;
 
     private String restaurantConatctNumber;
-    private String location;
+    private String city;
     private String image;
     private  String address;
     private String ownerEmail;
@@ -36,12 +34,12 @@ public class RestaurantDTO {
         this.restaurantConatctNumber = restaurantConatctNumber;
     }
 
-    public String getLocation() {
-        return location;
+    public String getCity() {
+        return city;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getImage() {
@@ -69,11 +67,11 @@ public class RestaurantDTO {
     }
 
 
-    public RestaurantDTO(Long id, String restaurantName, String restaurantConatctNumber, String location, String image, String address, String ownerEmail) {
+    public RestaurantDTO(Long id, String restaurantName, String restaurantConatctNumber, String city, String image, String address, String ownerEmail) {
         this.id = id;
         this.restaurantName = restaurantName;
         this.restaurantConatctNumber = restaurantConatctNumber;
-        this.location = location;
+        this.city = city;
         this.image = image;
         this.address = address;
         this.ownerEmail = ownerEmail;
