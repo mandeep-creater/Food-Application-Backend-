@@ -51,6 +51,10 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants;
 
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<CartItem> cartItems;
+
     public Long getId() {
         return id;
     }
@@ -184,4 +188,11 @@ public class User implements UserDetails {
     public List<Restaurant> getRestaurants() { return restaurants; }
     public void setRestaurants(List<Restaurant> restaurants) { this.restaurants = restaurants; }
 
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
+    }
 }

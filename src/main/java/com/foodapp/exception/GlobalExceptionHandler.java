@@ -2,6 +2,7 @@ package com.foodapp.exception;
 
 import com.foodapp.entity.MenuItem;
 import com.foodapp.entity.Restaurant;
+import com.foodapp.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,28 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    public static ResponseStatusException userNotExists(Class<User> userClass, String email) {
+        return new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "user NOT FOUND. User: " + email + " does not exist."
+        );
+    }
+
+    public static ResponseStatusException menuItemNotExists(Long menuItemId) {
+        return new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item NOT FOUND in MENU : " + menuItemId
+        );
+    }
+
+    public static void cartItemNotExists(Long cartItemId) {
+        throw  new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Item NOT FOUND in Cart : " + cartItemId
+        );
+    }
+
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
@@ -42,8 +65,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    public static ResponseStatusException menu_ItemNotFound(Class<MenuItem> menuItemClass, Long id) {
-        return new ResponseStatusException(
+    public static void menu_ItemNotFound(Class<MenuItem> menuItemClass, Long id) {
+        throw  new ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 " Item not found with ID: " + id
         );

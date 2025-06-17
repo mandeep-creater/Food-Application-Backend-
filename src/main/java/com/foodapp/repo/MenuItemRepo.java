@@ -1,6 +1,7 @@
 package com.foodapp.repo;
 
 import com.foodapp.entity.MenuItem;
+import com.foodapp.entity.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -34,4 +35,6 @@ public interface MenuItemRepo extends JpaRepository<MenuItem, Long> {
     List<MenuItem> findByCategoryContainingIgnoreCase(String category);
 
     List<MenuItem> findByRestaurant_RestaurantNameContainingIgnoreCase(String restaurantName);
+
+    Optional<MenuItem> findByNameAndRestaurant(String name, Restaurant restaurant);
 }

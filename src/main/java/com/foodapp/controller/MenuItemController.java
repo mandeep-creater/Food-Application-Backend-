@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -35,9 +36,20 @@ public class MenuItemController {
         ApiResponse<MenuItemDTO> apiResponse = new ApiResponse<>(HttpStatus.CREATED.value(), true, res);
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
-    @GetMapping("/by-item-id/{id}")
 
-    public ResponseEntity<ApiResponse<MenuResponseDTO>>getMenuItemById(@PathVariable("id") Long id) throws Exception {
+    //@ApiParam(value = "CSV File", required = true) //when use swagger
+//    @PreAuthorize("hasRole('RESTAURANT')")
+    @PreAuthorize("RESTAURANT")
+    @PostMapping(value="/bulk/upload" , consumes = {"multipart/form-data"})
+    public ResponseEntity<ApiResponse<String>> bulkCreateAndUpdate(@RequestParam("file") MultipartFile file)  {
+       Integer data = menuItemService.bulkCreateAndUpdate(file);
+       String msg = data + " items uploaded successfully";
+    ApiResponse<String> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), true, msg);
+    return  new ResponseEntity<>(apiResponse,HttpStatus.OK)  ;
+    }
+
+    @GetMapping("/by-item-id/{id}")
+    public ResponseEntity<ApiResponse<MenuResponseDTO>>getMenuItemById(@PathVariable("id") Long id)  {
         MenuResponseDTO res = menuItemService.getMenuItemById(id);
         ApiResponse<MenuResponseDTO> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), true, res);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
@@ -45,7 +57,7 @@ public class MenuItemController {
 
     @PreAuthorize("RESTAURANT")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteMenuItem(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ApiResponse<String>> deleteMenuItem(@PathVariable("id") Long id)  {
 
             menuItemService.deleteMenuItem(id);
 
@@ -54,21 +66,21 @@ public class MenuItemController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getAllMenuItems() throws Exception {
+    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getAllMenuItems()  {
         List<MenuResponseDTO> res = menuItemService.getAllMenuItems();
         ApiResponse<List<MenuResponseDTO>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), true, res);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @GetMapping("/category/{category}")
-    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getMenuItemsByCategory(@PathVariable("category") String category) throws Exception {
+    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getMenuItemsByCategory(@PathVariable("category") String category)  {
             List<MenuResponseDTO> res = menuItemService.getMenuItemsByCategory(category);
             ApiResponse<List<MenuResponseDTO>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), true, res);
             return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     @GetMapping("/price-range/{minPrice}/{maxPrice}")
-    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getMenuItemsByPriceRange(@PathVariable("minPrice") double minPrice, @PathVariable("maxPrice") double maxPrice) throws Exception {
+    public ResponseEntity<ApiResponse<List<MenuResponseDTO>>> getMenuItemsByPriceRange(@PathVariable("minPrice") double minPrice, @PathVariable("maxPrice") double maxPrice) {
         List<MenuResponseDTO> res = menuItemService.getMenuItemsByPriceRange(minPrice, maxPrice);
         ApiResponse<List<MenuResponseDTO>> apiResponse = new ApiResponse<>(HttpStatus.OK.value(), true, res);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);

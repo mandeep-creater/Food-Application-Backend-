@@ -1,6 +1,7 @@
 package com.foodapp.serviceImpl;
 
 
+import com.foodapp.DTO.MenuItemCsvRepresentation;
 import com.foodapp.DTO.MenuItemDTO;
 import com.foodapp.DTO.MenuResponseDTO;
 import com.foodapp.entity.MenuItem;
@@ -10,13 +11,17 @@ import com.foodapp.helper.MenuItemMapper;
 import com.foodapp.repo.MenuItemRepo;
 import com.foodapp.repo.RestaurantRepo;
 import com.foodapp.service.MenuItemService;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.foodapp.helper.MenuItemMapper.toEntity;
@@ -61,12 +66,83 @@ public class MenuItemServiceImpl implements MenuItemService {
         return toMenuItemDto(menuItemRepo.save(menuItem));
     }
 
-
-
     @Override
-    public MenuResponseDTO getMenuItemById(Long id) throws Exception {
+    public Integer bulkCreateAndUpdate(MultipartFile file) {
+        List<MenuItem> menuItems = parseCSV(file);
+        menuItemRepo.saveAll(menuItems);  // Saves both new and updated entries
+        return menuItems.size();
+    }
+
+    private List<MenuItem> parseCSV(MultipartFile file)  {
+        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+
+            HeaderColumnNameMappingStrategy<MenuItemCsvRepresentation> strategy = new HeaderColumnNameMappingStrategy<>();
+            strategy.setType(MenuItemCsvRepresentation.class);
+
+            CsvToBean<MenuItemCsvRepresentation> csvToBean = new CsvToBeanBuilder<MenuItemCsvRepresentation>(reader)
+                    .withMappingStrategy(strategy)
+                    .withIgnoreEmptyLine(true)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+
+            List<MenuItemCsvRepresentation> csvMenuItems = csvToBean.parse();
+
+            Map<String, MenuItem> finalItemsToSave = new HashMap<>();
+
+            for (MenuItemCsvRepresentation csv : csvMenuItems) {
+                if (csv.getName() == null || csv.getRestaurantId() == null) {
+                    // Skip or throw an exception for missing required fields
+                    continue;
+                }
+
+                Restaurant restaurant = restaurantRepo.findById(csv.getRestaurantId())
+                        .orElseThrow(() -> new RuntimeException("Restaurant not found with ID: " + csv.getRestaurantId()));
+
+                // Try to find existing MenuItem by name + restaurant
+                Optional<MenuItem> existingItemOpt = menuItemRepo.findByNameAndRestaurant(csv.getName(), restaurant);
+
+                MenuItem menuItem;
+                if (existingItemOpt.isPresent()) {
+                    // Update existing item (e.g. quantity)
+                    menuItem = existingItemOpt.get();
+                    if (csv.getQuantity() != null && csv.getQuantity() > 0) {
+                        menuItem.setQuantity(menuItem.getQuantity() + csv.getQuantity()); // Increment quantity
+                    }
+                    if (csv.getPrice() != null) menuItem.setPrice(csv.getPrice());
+                    if (csv.getDescription() != null) menuItem.setDescription(csv.getDescription());
+                    if (csv.getCategory() != null) menuItem.setCategory(csv.getCategory());
+                    if (csv.getImage() != null) menuItem.setImage(csv.getImage());
+                    if (csv.getAvailable() != null) menuItem.setAvailable(csv.getAvailable());
+                } else {
+                    // Create new item
+                    menuItem = new MenuItem();
+                    menuItem.setName(csv.getName());
+                    menuItem.setDescription(csv.getDescription());
+                    menuItem.setPrice(csv.getPrice());
+                    menuItem.setQuantity(csv.getQuantity() != null ? csv.getQuantity() : 0);
+                    menuItem.setCategory(csv.getCategory());
+                    menuItem.setRestaurant(restaurant);
+                    menuItem.setImage(csv.getImage());
+                    menuItem.setAvailable(csv.getAvailable());
+
+
+                }
+
+                finalItemsToSave.put(csv.getName() + "_" + csv.getRestaurantId(), menuItem);
+            }
+
+            return new ArrayList<>(finalItemsToSave.values());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+        @Override
+    public MenuResponseDTO getMenuItemById(Long id)  {
         if(!menuItemRepo.existsById(id)){
-            throw GlobalExceptionHandler.menu_ItemNotFound(MenuItem.class,id);
+             GlobalExceptionHandler.menu_ItemNotFound(MenuItem.class,id);
         }
         MenuItem menuItem = menuItemRepo.findBymenuItemId(id);
 
@@ -75,28 +151,30 @@ public class MenuItemServiceImpl implements MenuItemService {
     }
 
 
+
+
     @Override
-    public void deleteMenuItem(Long id) throws Exception {
+    public void deleteMenuItem(Long id) {
         if(menuItemRepo.existsById(id) ){
             menuItemRepo.deleteById(id);
         }
         else{
-            throw GlobalExceptionHandler.menu_ItemNotFound(MenuItem.class,id);
+             GlobalExceptionHandler.menu_ItemNotFound(MenuItem.class,id);
         }
 
     }
 
     @Override
-    public List<MenuResponseDTO> getAllMenuItems() throws Exception {
+    public List<MenuResponseDTO> getAllMenuItems()  {
         List<MenuItem> menuItems = menuItemRepo.findAll();
         if (menuItems.isEmpty()) {
-            throw GlobalExceptionHandler.menu_itemsNotFound(MenuItem.class);
+             GlobalExceptionHandler.menu_itemsNotFound(MenuItem.class);
         }
         return  menuItems.stream().map(MenuItemMapper::toResponseMenuItemDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<MenuResponseDTO> getMenuItemsByCategory(String category) throws Exception {
+    public List<MenuResponseDTO> getMenuItemsByCategory(String category)  {
         List<MenuItem> menuItems;
         if (category == null || category.trim().isEmpty()) {
             // Fallback: return all available items
@@ -106,13 +184,13 @@ public class MenuItemServiceImpl implements MenuItemService {
             menuItems = menuItemRepo.findByCategoryContainingIgnoreCase(category);
         }
         if (menuItems.isEmpty()) {
-            throw GlobalExceptionHandler.categoryItemNotFound(MenuItem.class,category);
+             GlobalExceptionHandler.categoryItemNotFound(MenuItem.class,category);
         }
         return menuItems.stream().map(MenuItemMapper::toResponseMenuItemDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<MenuResponseDTO> getMenuItemsByPriceRange(Double minPrice, Double maxPrice) throws Exception {
+    public List<MenuResponseDTO> getMenuItemsByPriceRange(Double minPrice, Double maxPrice) {
 
         List<MenuItem> menuItems;
         if (minPrice == null && maxPrice == null) {
@@ -132,7 +210,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         }
         if (menuItems.isEmpty()) {
 
-                throw GlobalExceptionHandler.itemNotFoundWithPrice(MenuItem.class, minPrice, maxPrice);
+                 GlobalExceptionHandler.itemNotFoundWithPrice(MenuItem.class, minPrice, maxPrice);
 
         }
         return menuItems.stream().map(MenuItemMapper::toResponseMenuItemDto).collect(Collectors.toList());
