@@ -38,6 +38,35 @@ public class GlobalExceptionHandler {
         );
     }
 
+    public static void cartItemEmpty(String email) {
+        throw  new ResponseStatusException(
+                HttpStatus.OK,
+                "Cart is Empty : " + email
+        );
+    }
+
+    public static void NoOrdersFoundForUser(String userEmail) {
+        throw  new ResponseStatusException(
+                HttpStatus.OK,
+                "No Order Present : " + userEmail
+        );
+    }
+
+    public static void NoOrdersFound() {
+
+        throw  new ResponseStatusException(
+                HttpStatus.OK,
+                "No Order Present  "
+        );
+    }
+
+    public static void NoLiveOrdersForUser(String userEmail) {
+        throw  new ResponseStatusException(
+                HttpStatus.OK,
+                "No Live Update Present  "
+        );
+    }
+
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(NoHandlerFoundException ex) {

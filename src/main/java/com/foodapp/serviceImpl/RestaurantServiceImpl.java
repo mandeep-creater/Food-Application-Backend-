@@ -1,16 +1,19 @@
 package com.foodapp.serviceImpl;
 
 import com.foodapp.DTO.RestaurantDTO;
+import com.foodapp.entity.Order;
 import com.foodapp.entity.Restaurant;
 import com.foodapp.entity.User;
 import com.foodapp.exception.GlobalExceptionHandler;
 import com.foodapp.helper.RestaurantMapper;
+import com.foodapp.repo.OrderRepo;
 import com.foodapp.repo.RestaurantRepo;
 import com.foodapp.repo.UserRepository;
 import com.foodapp.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -29,6 +32,9 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private OrderRepo orderRepo;
 
     @Override
     public RestaurantDTO addRestaurant(RestaurantDTO restaurantDTO,String OwnerEmail){
@@ -120,4 +126,14 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         return restaurants.stream().map(RestaurantMapper::toRestaurantDTO).collect(Collectors.toList());
     }
+
+    @Override
+    public List<Order> GetOrdersByRestaurantId(Long restaurantid) {
+        Optional<Restaurant> restaurant = restaurantRepo.findById(restaurantid);
+
+        // Fetch orders
+        return orderRepo.findByRestaurant_Restaurantid( restaurantid);
+    }
+
+
 }

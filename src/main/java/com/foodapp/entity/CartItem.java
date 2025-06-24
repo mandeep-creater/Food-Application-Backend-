@@ -20,11 +20,14 @@ public class CartItem {
     @JoinColumn(name = "menu_item_id", nullable = false)
     private MenuItem menuItem;
 
-
     private int quantity;
 
 
     private LocalDateTime addedAt;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "order_preview_id")
+//    private OrderPreview orderPreview;
 
 
     // Getters and setters...
@@ -70,6 +73,13 @@ public class CartItem {
         this.addedAt = addedAt;
     }
 
+//    public OrderPreview getOrderPreview() {
+//        return orderPreview;
+//    }
+//
+//    public void setOrderPreview(OrderPreview orderPreview) {
+//        this.orderPreview = orderPreview;
+//    }
 
 
 

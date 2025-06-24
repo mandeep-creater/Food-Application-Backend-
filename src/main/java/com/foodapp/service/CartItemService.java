@@ -88,6 +88,7 @@ public interface CartItemService {
     double getMaxPriceInRangeAndQuantityRangeAndCategoryRange(String email, double minPrice, double maxPrice, int minQuantity, int maxQuantity, String category);
 
 
+    void clearCart(String email);
 }
 
 

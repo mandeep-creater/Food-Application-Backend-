@@ -43,10 +43,10 @@ public class CartItemServiceImpl implements CartItemService {
 
         //check cart item exist
         Optional<CartItem> cartItemOptional = cartItemRepo.findByUserAndMenuItem(user, menuItem);
-
+        //    Long exsitingMenuId = cartItemOptional.get().getMenuItem().getMenuItemId();
         CartItem cartItem;
-
-        if (cartItemOptional.isPresent()) {
+      //if( exsitingMenuId.equals(menuItemId)) {
+        if (cartItemOptional.isPresent() ) {
             // Item already in cart: update quantity
             cartItem = cartItemOptional.get();
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
@@ -124,6 +124,10 @@ public class CartItemServiceImpl implements CartItemService {
             throw GlobalExceptionHandler.userNotExists(User.class,email);
         }
         List<CartItem> cartItems = cartItemRepo.findAllByUser(user.get());
+                if (cartItems.isEmpty()) {
+            GlobalExceptionHandler.cartItemEmpty(email);
+        }
+
         double totalPrice = 0.0;
         for (CartItem cartItem : cartItems) {
             totalPrice += cartItem.getMenuItem().getPrice() * cartItem.getQuantity();
@@ -308,6 +312,20 @@ public class CartItemServiceImpl implements CartItemService {
     @Override
     public double getMaxPriceInRangeAndQuantityRangeAndCategoryRange(String email, double minPrice, double maxPrice, int minQuantity, int maxQuantity, String category) {
         return 0;
+    }
+
+    @Override
+    public void clearCart(String email) {
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> GlobalExceptionHandler.userNotExists(User.class, email));
+
+        List<CartItem> cartItems = cartItemRepo.findAllByUser(user);
+
+        if (cartItems.isEmpty()) {
+             GlobalExceptionHandler.cartItemEmpty(email);
+        }
+
+        cartItemRepo.deleteAll(cartItems);
     }
 
 

@@ -2,6 +2,7 @@ package com.foodapp.controller;
 
 import com.foodapp.DTO.RestaurantDTO;
 import com.foodapp.Response.ApiResponse;
+import com.foodapp.entity.Order;
 import com.foodapp.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class RestaurantController {
 
     @Autowired
     private RestaurantService restaurantService;
-    private ApiResponse<List<RestaurantDTO>> result;
+
 
     @PreAuthorize("RESTAURANT")
     @PostMapping("/register")
@@ -76,4 +77,12 @@ public class RestaurantController {
         ApiResponse<List<RestaurantDTO>> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
         return ResponseEntity.ok(result);
     }
+
+
+//    @GetMapping("/{id}/orders" )
+//    public ResponseEntity<ApiResponse<List<Order>>>GetOrdersByRestaurantId(@PathVariable("id") Long id){
+//        List<Order> res = restaurantService.GetOrdersByRestaurantId(id);
+//        ApiResponse<List<Order>> result = new ApiResponse<>(HttpStatus.OK.value(), true,res);
+//        return ResponseEntity.ok(result);
+//    }
 }

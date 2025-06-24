@@ -1,6 +1,7 @@
 package com.foodapp.service;
 
 import com.foodapp.DTO.RestaurantDTO;
+import com.foodapp.entity.Order;
 import com.foodapp.entity.Restaurant;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface RestaurantService {
 
 
     List<RestaurantDTO>getByOwnerEmail(String ownerEmail);
+
+    List<Order>GetOrdersByRestaurantId(Long restaurantId);
 }
